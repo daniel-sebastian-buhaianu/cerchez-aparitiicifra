@@ -1,63 +1,59 @@
 #include <stdio.h>
 
-int apcif(int n, int k);
+#define CIFREMAX 10
+
+int N, K, NT = 0;
+int C[CIFREMAX], P10[CIFREMAX]={1};
 
 int main()
 {
-	int n, k;
+	int i, p, pcifra, aux;
 
 	printf("n = ");
-	scanf("%d", &n);
+	scanf("%d", &N);
+	aux = N;
 
 	printf("k = ");
-	scanf("%d", &k);
+	scanf("%d", &K);
 
-	printf("apcif(%d, %d) = %d\n", n, k, apcif(n, k));
+	for (i = 1; i < CIFREMAX; i++)
+	{
+		C[i] = 9*C[i-1] + P10[i-1];
+		P10[i] = P10[i-1]*10;
+	}
+
+	for (p = CIFREMAX-1; p+1; p--)
+	{
+		if (N >= P10[p])
+		{
+			pcifra = N/P10[p]; // determin prima cifra a lui N
+
+			if (pcifra > K)
+			{
+				NT += P10[p];
+				NT += (pcifra-1)*C[p];
+			}
+
+			if (pcifra == K)
+			{
+				NT += pcifra*C[p];
+				NT += N%P10[p]+1;
+				break;
+			}
+
+			if (pcifra < K)
+			{
+				NT += pcifra*C[p];
+			}
+
+			N %= P10[p]; // eliminam prima cifra a lui N
+		}
+	}
+
+	N = aux;
+
+	printf("apcif(%d, %d) = %d\n", N, K, NT);
 
 	return 0;
 }
-
-int apcif(int n, int k)
-{
-	if (n < 10)
-	{
-		return n >= k ? 1 : 0;
-	} 
-	else if (n < 100)
-	{
-		if (n < k*10)
-		{
-			return n/10 + (n%10 >= k);
-		}
-		else if (n >= k*10 && n <= (k+1)*10)
-		{
-			return k + (n - k*10 + 1);
-		}
-		else
-		{
-			return k + 10 + (n/10 - (k+1)) + (n%10 >= k);
-		}
-	}
-	else
-	{
-		int aux, p;
-
-		for (aux = n, p = 1; n; n /= 10, p *= 10);
-
-		p /= 10, n = aux;
-
-		if (n < k*p)
-		{
-			return n/100*apcif(99, k) + apcif(n%100, k);
-		}
-		else if (n >= k*p && n < (k+1)*p)
-		{
-			return n/p * p/100*apcif(99, k) + (n - k*p + 1);
-		}
-		else
-		{
-			return apcif((k+1)*p-1, k) + (n/100 - (k+1)*p/100)*apcif(99, k) + apcif(n%100, k);
-		}
-
-	}
-}
+// sol oficiala
